@@ -1,23 +1,40 @@
-use std::io;
-fn main() {
-    println!("Command Line utilities in Rust made with <3 by lemosep");
-    
-    loop {
-        let mut input = String::new();
+use clap::Parser;
+ mod ls_cmd;
 
-        io::stdin().read_line(&mut input).expect("error: couldn`t read line");
+ #[derive(Parser)]
+ #[clap(author, version, about, long_about = None)]
+ struct Args{
+    #[clap(subcommand)]
+    cmd: SubCommand,
+ }
 
-        let trimmed = input.trim();
+#[derive(Parser)]
+enum SubCommand {
+    #[clap(name = "ls")]
+    List(ListCmd),
+}
 
-        if trimmed == "exit" {
-            break;
-        };
+#[derive(Parser)]
+struct ListCmd {
+    #[clap (short, long, value_parser)]
+    directory_name: String,
+}
 
-        match trimmed {
-            "ls" => println!("Off to run da LS command!"),
-            _ => println!("no command available, nigga")
+ fn main(){
+    let args = Args::parse();
+
+    match args.cmd {
+        SubCommand::List(list_cmd) => {
+            let current_dir = list_cmd.directory_name;
+            match ls_cmd::get_current_dir_entries(&current_dir) {
+                Ok(paths) => {
+                    for path in paths {
+                        println!("{}", path.display());
+                    }
+                }
+                Err(e) => println!("Error:{}", e)
+            }
         }
-
     }
 
-}
+ }
