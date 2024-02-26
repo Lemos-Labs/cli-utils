@@ -1,5 +1,6 @@
 use clap::Parser;
- mod ls_cmd;
+use std::{fs, io, path::PathBuf};
+
 
  #[derive(Parser)]
  #[clap(author, version, about, long_about = None)]
@@ -26,7 +27,7 @@ struct ListCmd {
     match args.cmd {
         SubCommand::List(list_cmd) => {
             let current_dir = list_cmd.directory_name;
-            match ls_cmd::get_current_dir_entries(&current_dir) {
+            match get_current_dir_entries(&current_dir) {
                 Ok(paths) => {
                     for path in paths {
                         println!("{}", path.display());
@@ -38,3 +39,16 @@ struct ListCmd {
     }
 
  }
+
+fn get_current_dir_entries(path: &String) -> Result<Vec<PathBuf>, io::Error> {
+    let entries = fs::read_dir(path)?;
+
+    let mut paths: Vec<PathBuf> = Vec::new();
+
+    for entry in entries {
+        let entry = entry?;
+        paths.push(entry.path());
+    };
+    
+    Ok(paths)
+} 

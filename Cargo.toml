@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 
-members = [
-    "cli_main",
+members = [ 
+    "ls_cmd",
+    "curl_cmd"
 ]
